@@ -13,12 +13,11 @@ MainWindow::MainWindow(QWidget *parent) :
   roverRefresh = new QTimer(this);
   manipulatorRefresh = new QTimer(this);
 
-
   mySettingsWindow = new SettingsWindow();
 
   ui->setupUi(this);
 
- // myModbusServer = new ModbusServer(1502,this);
+  //myModbusServer = new ModbusServer(1502,this);
   //myModbusServer->startListening();
 
   myRover = new Rover(this);
@@ -29,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(this->myRover,SIGNAL(statusConnectedChanged(bool)),this->mySettingsWindow,SLOT(setStatusDiodeRover(bool)));
   connect(this->mySettingsWindow,SIGNAL(connectToHostRover(QString,int)),this->myRover,SLOT(connectToModbusServer(QString,int)));
   connect(this->mySettingsWindow,SIGNAL(disconnectFromHostRover()),this->myRover,SLOT(disconnectFromModbusServer()));
+
   //Manipulator
   connect(this->mySettingsWindow,SIGNAL(manipulatorJoypadSelected(int)),this,SLOT(createManipulatorJoystick(int)));
   connect(this->myManipulator,SIGNAL(statusConnectedChanged(bool)),this->mySettingsWindow,SLOT(setStatusDiodeManipulator(bool)));
@@ -45,9 +45,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   connect(myJoystickManipulator,SIGNAL(axisChanged(int,qint16)),this->ui->widgetJoypadRover,SLOT(changeAxisStat(int,qint16)));
   connect(myJoystickManipulator,SIGNAL(buttonChanged(int,qint16)),this->ui->widgetJoypadRover,SLOT(changeButtonState(int,bool)));
-
-  connect(myJoystickManipulator,SIGNAL(axisChanged(int,qint16)),myManipulator,SLOT(interpretJoypadAxis(int,qint16)));
-  //connect(myJoystickManipulator,SIGNAL(buttonChanged(int,qint16)),this->ui->widgetJoypadRover,SLOT(changeButtonState(int,bool)));
   //roverRefresh = new QTimer(this);
   //roverRefresh->start(50);
 
@@ -64,18 +61,15 @@ void MainWindow::showSettingsWindow(){
   mySettingsWindow->show();
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow(){
   delete ui;
 }
 
-
-void MainWindow::on_pushButton_clicked()
-{
+void MainWindow::on_pushButton_clicked(){
   for (u_int8_t i = 0; i < 5; i++){
-    this->myManipulator->setRegister(i,i+5);
+    this->myRover->setRegister(i,i+5);
   }
-  this->myManipulator->writeMultipleRegisters(0,5);
+  this->myRover->writeMultipleRegisters(0,5);
 }
 
 //Only once
