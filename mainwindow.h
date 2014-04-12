@@ -27,7 +27,10 @@ public slots:
   void createRoverJoystick(int id);
 private slots:
   void showSettingsWindow();
-
+  void connectToHostManipulator(QString ip,int port );
+  void connectToHostRover(QString ip,int port);
+  void disconnectFromHostManipulator();
+  void disconnectFromHostRover();
   void on_pushButton_clicked();
 
 private:

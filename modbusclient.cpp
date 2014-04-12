@@ -26,9 +26,8 @@ ModbusClient::ModbusClient(QObject *parent) :
 
 ModbusClient::~ModbusClient(){
   disconnectFromModbusServer();
-  mySocket->waitForDisconnected(2000);
-  delete mySocket;
-  delete responseTimer;
+  if(!mySocket->isOpen())
+    mySocket->waitForDisconnected(2000);
   delete[] holdingRegisters;
 }
 
