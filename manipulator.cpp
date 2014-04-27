@@ -1,11 +1,23 @@
 #include "manipulator.h"
 
+
+int const Manipulator::axisNumber = 4;
+int const Manipulator::servoMax[] = { 500, 400, 550, 550};
+int const Manipulator::servoMin[] = { 150, 100, 100, 100};
+int const MotorSpeedButton = 4;
+int const MotorSpeedIndex = 4;
 Manipulator::Manipulator(QObject *parent ) :
   ModbusClient(parent)
 {
-  axisValue = new quint16[AXIS_NUMBER];
+  requestCounter = 0;
+  goodResponseCounter = 0;
+  axisValues = new quint16[axisNumber];
 
-  axisStatus = new bool[AXIS_NUMBER];
+  for(int i=0; i<axisNumber;i++){
+      axisValues[i] = servoMin[i];
+    }
+
+  axisStatus = new bool[axisNumber];
   actualAxisValue = 0;
   resetManipulator();
 
@@ -14,51 +26,103 @@ Manipulator::Manipulator(QObject *parent ) :
   connect(incrementAxisTimer,SIGNAL(timeout()),this,SLOT(incrementManipulatorAxisValues()));
 }
 Manipulator::~Manipulator(){
-  delete[] axisValue;
+  delete[] axisValues;
   delete[] axisStatus;
 }
 //TO DO
 void Manipulator::incrementManipulatorAxisValues(){
-  for(int i=0;i<AXIS_NUMBER;i++)
+
+  for(int i=0; i<axisNumber; i++){
     if(axisStatus[i]==true){
-      if((-1)*actualAxisValue>axisValue[i]){
-        axisValue[i] = 0;
+      if(axisValues[i] +actualAxisValue<servoMin[i]){
+        axisValues[i] = servoMin[i];
+        setRegister(i, axisValues[i]);
         return;
       }
-      axisValue[i] += actualAxisValue;
-      if(axisValue[i]>615)
-        axisValue[i] = 615;
-      return; // We can control only one axis at time
+      if(axisValues[i] + actualAxisValue>servoMax[i]){
+        axisValues[i] = servoMax[i];
+        setRegister(i, axisValues[i]);
+        return;
+      }
+      axisValues[i] += actualAxisValue;
+      setRegister(i, axisValues[i]);
+      return;
     }
+  }
 }
 void Manipulator::resetManipulator(){
-  for(int i=0;i<AXIS_NUMBER; i++)
-    axisValue[i] = 0;  //TO DO, Maybe 0 PWM shouldnt be default value
-  for(int i=0; i<AXIS_NUMBER; i++)
+  for(int i=0;i<axisNumber; i++){
+    axisValues[i] = servoMin[i];
+    setRegister(i, servoMin[i]);
+  }
+  for(int i=0; i<axisNumber; i++)
     axisStatus[i] = false;
 }
-void Manipulator::sendManipulatorData(){
-  for(int i=0; i<AXIS_NUMBER; i++){
-    setRegister(i, axisValue[i]);
-  }
+void Manipulator::updateManipulatorData(){
+  if(isWaitingForResponse)
+    return;
+  requestCounter ++;
 
-  qDebug()<<"Sending data";
-  qDebug()<<"Writing status " << writeMultipleRegisters(0,AXIS_NUMBER);
+  sendManipulatorData();
+  //For now we dont have any read functions
+}
+
+void Manipulator::sendManipulatorData(){
+
+  writeMultipleRegisters(0,6);
 }
 
 void Manipulator::interpretJoypadButton(int id, bool status){
   if(status == true)
-    for(int i=0; i<AXIS_NUMBER; i++)
+    for(int i=0; i<axisNumber; i++)
       if(i == id)
         axisStatus[i] = true;
       else
         axisStatus[i] = false;
   else
     axisStatus[id] = false;
+
+  if(id == MotorSpeedButton){
+    if(status == true){
+      motorStatus = true;
+    }
+    else{
+      motorStatus = false;
+    }
+  }
 }
 
 void Manipulator::interpretJoypadAxis(int id, qint16 value){
-  if(id == 1)
+  if(id == 1){
     actualAxisValue = value/5000;
+    if(motorStatus==true)
+      setRegister(MotorSpeedIndex,value/35);
+  }
+
+  if(id == 3){
+    qint16 uartAngle = (float)value/100;
+    if(uartAngle>300)
+      uartAngle = 300;
+    if(uartAngle<0)
+      uartAngle = 0;
+
+    setRegister(5,uartAngle);
+  }
+
 }
 
+void Manipulator::proceedResponse(bool status, qint8 errorCode){
+  if(status){
+    goodResponseCounter++;
+    emit manipulatorDataUpdated();
+  }
+  else
+    qDebug()<<"BAD RESPONSE Manipulator"; //We could add errorCode message
+}
+
+int Manipulator::getAxisValue(int index){
+  if(index<0 || index>=axisNumber)
+    return 0;
+  else
+    return axisValues[index];
+}

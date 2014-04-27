@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include <QString>
+#include <QPushButton>
 #include <QMainWindow>
 #include <QAction>
 #include <QActionEvent>
@@ -21,17 +22,18 @@ class MainWindow : public QMainWindow
 public:
   explicit MainWindow(QWidget *parent = 0);
   ~MainWindow();
-
+  QTimer *tempTimer;
 public slots:
   void createManipulatorJoystick(int id);
   void createRoverJoystick(int id);
+  void updateRoverDisplayData();
+  void updateManipulatorDisplayData();
 private slots:
   void showSettingsWindow();
   void connectToHostManipulator(QString ip,int port );
   void connectToHostRover(QString ip,int port);
   void disconnectFromHostManipulator();
   void disconnectFromHostRover();
-  void on_pushButton_clicked();
 
 private:
   Ui::MainWindow *ui;
@@ -52,6 +54,10 @@ private:
 
   QTimer *roverRefresh;
   QTimer *manipulatorRefresh;
+
+  void setDisplayStyle();
+  void checkTelemetryValues();
+  void initManipulatorAxisDisplayData();
 };
 
 #endif // MAINWINDOW_H

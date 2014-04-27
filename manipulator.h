@@ -5,7 +5,6 @@
 
 #include "qmath.h"
 #include <limits>
-#define AXIS_NUMBER 5
 class Manipulator : public ModbusClient
 {
   Q_OBJECT
@@ -13,17 +12,33 @@ public:
   explicit Manipulator(QObject *parent = 0);
   ~Manipulator();
   void resetManipulator();
+
+  static int const axisNumber;
+  static int const servoMin[];
+  static int const servoMax[];
+  int getAxisValue(int index);
+signals:
+  void manipulatorDataUpdated();
 public slots:
-  void sendManipulatorData();
   void interpretJoypadButton(int id, bool status);
   void interpretJoypadAxis(int id, qint16 value);
+  void updateManipulatorData();
 private slots:
   void incrementManipulatorAxisValues();
+  void proceedResponse(bool status, qint8 errorCode);
 private:
+  void sendManipulatorData();
+
   qint16 actualAxisValue;
-  quint16 *axisValue;
+  quint16 *axisValues;
   bool *axisStatus;
+  bool motorStatus;
   QTimer *incrementAxisTimer;
+
+  int requestCounter;
+  int goodResponseCounter;
+
+
 };
 
 #endif // MANIPULATOR_H

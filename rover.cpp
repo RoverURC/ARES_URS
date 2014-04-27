@@ -1,86 +1,74 @@
 #include "rover.h"
 
+const int leftAxis = 1;
+const int rightAxis = 4;
+const int gpsOffset = 40;
+
 Rover::Rover(QObject *parent ) :
   ModbusClient(parent)
-{ 
-}
+{
+  goodResponseCounter = 0;
+  requestCounter = 0;
 
-void Rover::setRightMotorDirection(quint16 value){
-  if(value == MOTOR_FORWARD ||
-     value == MOTOR_BACKWARD ||
-     value == MOTOR_BREAK ||
-     value == MOTOR_IDLE)
-    setRegister(0,value);
-}
-
-void Rover::setLeftMotorDirection(quint16 value){
-  if(value == MOTOR_FORWARD ||
-     value == MOTOR_BACKWARD ||
-     value == MOTOR_BREAK ||
-     value == MOTOR_IDLE)
-    setRegister(1,value);
-}
-
-void Rover::setRightMotorSpeed(quint16 value){
-  setRegister(2,value);
-}
-
-void Rover::setLeftMotorSpeed(quint16 value){
-  setRegister(3,value);
-}
-
-void Rover::setTurningMotorDirection(quint16 value){
-  if(value == MOTOR_RIGHT||
-     value == MOTOR_LEFT ||
-     value == MOTOR_BREAK ||
-     value == MOTOR_IDLE )
-  setRegister(4,value);
+  connect(this,SIGNAL(transactionFinished(bool,qint8)),this,SLOT(proceedResponse(bool,qint8)));
 }
 void Rover::sendRoverData(){
+  qDebug()<<"Sending rover data";
 
-  qDebug()<<"sending rover data";
-  writeMultipleRegisters(0,5);
+  writeMultipleRegisters(32,2);
 }
+void Rover::readRoverData(){
+  qDebug()<<"Reading Rover Data";
+
+  //Read Voltage and Current from motor drivers
+
+  readHoldingRegisters(1,30);
+
+  //Read GPS Data from PLC
+}
+void Rover::readGPSData(){
+
+
+}
+
+void Rover::updateRoverData(){
+  if(isWaitingForResponse)
+    return;
+  requestCounter ++;
+  if(requestCounter % 2){
+    sendRoverData();
+  }
+  else{
+    readRoverData();
+  }
+}
+
 void Rover::interpretJoypadButton(int id, bool status){
 
 }
-
+void Rover::setLeftPWM(qint16 value){
+  setRegister(32, value);
+}
+void Rover::setRightPWM(qint16 value){
+  setRegister(33, value);
+}
 //Set speed and direction of each engine
 void Rover::interpretJoypadAxis(int id, qint16 value){
+  if(id==leftAxis){
+    qint16 valuePWM = ((double)value/std::numeric_limits<quint16>::max()) * 1000;
+    setLeftPWM(valuePWM);
+  }
+  if(id==rightAxis){
+    qint16 valuePWM = ((double)value/std::numeric_limits<quint16>::max()) * 1000;
+    setRightPWM(valuePWM);
+  }
+}
+void Rover::proceedResponse(bool status, qint8 errorCode){
+  if(status){
+    goodResponseCounter++;
+  }
+  else
+    qDebug()<<"BAD RESPONSE"; //We could add errorCode message
 
-  if(id==1 && value<0){
-    if(value==std::numeric_limits<qint16>::min()){
-      setLeftMotorSpeed(std::numeric_limits<qint16>::max());
-      setRightMotorSpeed(std::numeric_limits<qint16>::max());
-    }
-    else{
-     setLeftMotorSpeed(qAbs(value));
-     setRightMotorSpeed(qAbs(value));
-    }
-    setLeftMotorDirection(MOTOR_FORWARD);
-    setRightMotorDirection(MOTOR_FORWARD);
-  }
-  if(id==1 && value>0){
-    setLeftMotorSpeed(value);
-    setRightMotorSpeed(value);
-    setLeftMotorDirection(MOTOR_BACKWARD);
-    setRightMotorDirection(MOTOR_BACKWARD);
-  }
-  if(id==1 && value==0){
-    setLeftMotorSpeed(qAbs(value));
-    setLeftMotorDirection(MOTOR_IDLE);
-    setRightMotorSpeed(qAbs(value));
-    setRightMotorDirection(MOTOR_IDLE);
-  }
-
-  if(id==3 && value<0){
-    setTurningMotorDirection(MOTOR_LEFT);
-  }
-  if(id==3 && value>0){
-    setTurningMotorDirection(MOTOR_RIGHT);
-  }
-  if(id==3 && value==0){
-    setTurningMotorDirection(MOTOR_IDLE);
-  }
-
+  emit roverDataUpdated();
 }

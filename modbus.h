@@ -23,6 +23,15 @@
 #define MODBUS_LENGTH_UNIT_IDENTIFIER 1
 #define MODBUS_LENGTH_FUNCTION_CODE 1
 
+//Modbus Errors (Mine)
+#define MODBUS_ERROR_SUCCESS 0x00
+#define MODBUS_ERROR_TIMEOUT 0x01
+#define MODBUS_ERROR_BADFORMAT 0x02
+#define MODBUS_ERROR_BADTRANSACTIONID 0x03
+#define MODBUS_ERROR_BADPROTOCOLID 0x04
+#define MODBUS_ERROR_BADUNITID 0x05
+#define MODBUS_ERROR_BADRESPONSEFC 0x06
+
 // |Transaction Identyfier x2| Protocol Identyfier x2| Length x2 | Unit Identyfier (must be 255) x1 | Function code x1| //
 
 //

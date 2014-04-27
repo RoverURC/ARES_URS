@@ -34,6 +34,8 @@ class ModbusClient : public QObject
 public:
   explicit ModbusClient(QObject *parent = 0);
   ~ModbusClient();
+
+  //Modbus requests
   bool writeSingleRegister(quint16 registerAddress);
   bool writeMultipleRegisters(quint16 startingAddress, quint16 quantityOfRegisters);
   bool readHoldingRegisters(quint16 startingAddress, quint16 quantityOfRegisters);
@@ -41,34 +43,30 @@ public:
   bool setRegister(int index, quint16 value);
   bool getRegister(int index, quint16 &value);
 
-  void setResponseTimerTimeout(int ms){
-    responseTimerTimeout=ms;
-  }
+  void setResponseTimerTimeout(int ms){ responseTimerTimeout = ms;}
 
-  QTcpSocket *mySocket;
 public slots:
   bool connectToModbusServer(QString ip, int port);
   bool disconnectFromModbusServer();
-
 signals:
   void statusConnectedChanged(bool);
-  void modbusDataReady();
-  void modbusResponseTimeout();
-  void modbusBadResponseFormat();
+  
+  // Bad response, Good response or Timeout
+  void transactionFinished(bool, qint8 errorCode);
+  
 private slots:
-  void timeoutConfirmation();
-  void tempConfirmation();
-  void tempBadReq();
-
+  void transactionTimeout();
   void connected();
   void disconnected();
   void readDataAndCheck();
-
-private:
-  bool statusConnected;
+protected:
   bool isWaitingForResponse;
+private:
+
+  QTcpSocket *mySocket;
+  bool statusConnected;
   bool proceedResponse();
-  bool proceedWriteSigngleRegisterResponse();
+  bool proceedWriteSingleRegisterResponse();
   bool proceedWriteMultipleRegistersResponse();
   bool proceedReadHoldingRegistersResponse();
 
