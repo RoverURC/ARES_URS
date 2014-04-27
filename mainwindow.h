@@ -7,12 +7,31 @@
 #include <QActionEvent>
 #include "modbusclient.h"
 #include "modbusserver.h"
-#include "settingswindow.h"
 #include "qjoystick.h"
 #include "rover.h"
 #include "manipulator.h"
+
+class GPSCoordinates
+{
+public:
+  GPSCoordinates();
+  GPSCoordinates(float latitudeDegrees, float latitudeMinutes, float latitudeSeconds, QChar latitudeDesignator,
+                 float longnitudeDegrees, float longnitudeMinutes, float longnitudeSeconds, QChar longnitudeeDesignator);
+
+  float latitudeDegrees;
+  float latitudeMinutes;
+  float latitudeSeconds;
+  QChar latitudeDesignator;
+
+  float longnitudeDegrees;
+  float longnitudeMinutes;
+  float longnitudeSeconds;
+  QChar longnitudeeDesignator;
+};
+
 namespace Ui {
   class MainWindow;
+
 }
 
 class MainWindow : public QMainWindow
@@ -24,14 +43,13 @@ public:
   ~MainWindow();
   QTimer *tempTimer;
 public slots:
-  void createManipulatorJoystick(int id);
-  void createRoverJoystick(int id);
+  void createManipulatorJoystick();
+  void createRoverJoystick();
   void updateRoverDisplayData();
   void updateManipulatorDisplayData();
 private slots:
-  void showSettingsWindow();
-  void connectToHostManipulator(QString ip,int port );
-  void connectToHostRover(QString ip,int port);
+  void connectToHostManipulator();
+  void connectToHostRover();
   void disconnectFromHostManipulator();
   void disconnectFromHostRover();
 
@@ -43,8 +61,6 @@ private:
   //ModbusClient *myModbusClient;
 
   Manipulator *myManipulator;
-  //Windows
-  SettingsWindow *mySettingsWindow;
 
   QJoystick *myJoystickRover;
   QJoystick *myJoystickManipulator;
@@ -58,6 +74,16 @@ private:
   void setDisplayStyle();
   void checkTelemetryValues();
   void initManipulatorAxisDisplayData();
+  //void updateGPSWidget();
+  GPSCoordinates targetGPSCoordinates;
+  GPSCoordinates actualGPSCoordinates;
+
+public slots:
+  void setStatusDiodeRover(bool status);
+
+  void setStatusDiodeManipulator(bool status);
 };
+
+
 
 #endif // MAINWINDOW_H

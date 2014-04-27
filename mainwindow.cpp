@@ -40,8 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
   roverRefresh = new QTimer(this);
   manipulatorRefresh = new QTimer(this);
 
-  mySettingsWindow = new SettingsWindow();
-
   ui->setupUi(this);
 
   //Manipulator and rover objects that inherits from ModbusServer
@@ -49,18 +47,15 @@ MainWindow::MainWindow(QWidget *parent) :
   myManipulator = new Manipulator(this);
 
   //Rover
-  connect(this->mySettingsWindow,SIGNAL(roverJoypadSelected(int)),this,SLOT(createRoverJoystick(int)));
-  connect(this->myRover,SIGNAL(statusConnectedChanged(bool)),this->mySettingsWindow,SLOT(setStatusDiodeRover(bool)));
-  connect(this->mySettingsWindow,SIGNAL(connectToHostRover(QString,int)),this,SLOT(connectToHostRover(QString,int)));
-  connect(this->mySettingsWindow,SIGNAL(disconnectFromHostRover()),this,SLOT(disconnectFromHostRover()));
+  connect(this->ui->pushButtonSelectRoverJoypad,SIGNAL(clicked()),this,SLOT(createRoverJoystick()));
+  connect(this->myRover,SIGNAL(statusConnectedChanged(bool)),this,SLOT(setStatusDiodeRover(bool)));
+  connect(this->ui->pushButtonConnectRover,SIGNAL(clicked()),this,SLOT(connectToHostRover()));
+  connect(this->ui->pushButtonDisconnectRover,SIGNAL(clicked()),this,SLOT(disconnectFromHostRover()));
   //Manipulator
-  connect(this->mySettingsWindow,SIGNAL(manipulatorJoypadSelected(int)),this,SLOT(createManipulatorJoystick(int)));
-  connect(this->myManipulator,SIGNAL(statusConnectedChanged(bool)),this->mySettingsWindow,SLOT(setStatusDiodeManipulator(bool)));
-  connect(this->mySettingsWindow,SIGNAL(connectToHostManipulator(QString,int)),this,SLOT(connectToHostManipulator(QString,int)));
-  connect(this->mySettingsWindow,SIGNAL(disconnectFromHostManipulator()),this,SLOT(disconnectFromHostManipulator()));
-
-  //Open settings window
-  connect(this->ui->actionSettings,SIGNAL(triggered()),this,SLOT(showSettingsWindow()));
+  connect(this->ui->pushButtonSelectManipulatorJoypad,SIGNAL(clicked()),this,SLOT(createManipulatorJoystick()));
+  connect(this->myManipulator,SIGNAL(statusConnectedChanged(bool)),this,SLOT(setStatusDiodeManipulator(bool)));
+  connect(this->ui->pushButtonConnectManipulator,SIGNAL(clicked()),this,SLOT(connectToHostManipulator()));
+  connect(this->ui->pushButtonDisconnectManipulator,SIGNAL(clicked()),this,SLOT(disconnectFromHostManipulator()));
 
   //Show data on joypadRoverWidget
   connect(myJoystickRover,SIGNAL(axisChanged(int,qint16)),this->ui->widgetJoypadRover,SLOT(changeAxisStat(int,qint16)));
@@ -95,19 +90,25 @@ MainWindow::MainWindow(QWidget *parent) :
   initManipulatorAxisDisplayData();
   setDisplayStyle();
 
+  for(int i=0;i<QJoystick::availableJoysticks();i++){
+    ui->comboBoxRoverJoystick->addItem(QJoystick::joystickName(i));
+    ui->comboBoxManipulatorJoystick->addItem(QJoystick::joystickName(i));
+  }
+
   //TEMP
   tempTimer = new QTimer(this);
   connect(tempTimer,SIGNAL(timeout()),this,SLOT(updateManipulatorDisplayData()));
+  connect(tempTimer,SIGNAL(timeout()),this,SLOT(updateRoverDisplayData()));
   tempTimer->start(200);
 }
 
-void MainWindow::connectToHostManipulator(QString ip,int port){
-  if(myManipulator->connectToModbusServer(ip, port))
+void MainWindow::connectToHostManipulator(){
+  if(myManipulator->connectToModbusServer(ui->lineEditIPManipulator->text(), ui->lineEditPortManipulator->text().toInt()))
     manipulatorRefresh->start(400);
 }
 
-void MainWindow::connectToHostRover(QString ip,int port){
-  if(myRover->connectToModbusServer(ip, port))
+void MainWindow::connectToHostRover(){
+  if(myRover->connectToModbusServer(ui->lineEditIPRover->text(), ui->lineEditPortRover->text().toInt()))
     roverRefresh->start(50);
 }
 
@@ -121,27 +122,23 @@ void MainWindow::disconnectFromHostRover(){
   roverRefresh->stop();
 }
 
-void MainWindow::showSettingsWindow(){
-  mySettingsWindow->show();
-}
-
 MainWindow::~MainWindow(){
   delete ui;
 }
 // Is done only once
-void MainWindow::createManipulatorJoystick(int id){
-  myJoystickManipulator->setJoystick(id);
+void MainWindow::createManipulatorJoystick(){
+  myJoystickManipulator->setJoystick(this->ui->comboBoxManipulatorJoystick->currentIndex());
   joypadManipulatorRefresh->start(20);
 }
 // Is done only once
-void MainWindow::createRoverJoystick(int id){
-  myJoystickRover->setJoystick(id);
+void MainWindow::createRoverJoystick(){
+  myJoystickRover->setJoystick(this->ui->comboBoxRoverJoystick->currentIndex());
   joypadRoverRefresh->start(20);
 }
 void MainWindow::updateManipulatorDisplayData(){
   //Connection stats
-  this->ui->lineEditRoverRequestNumber->setText(QString::number(myRover->getRequestNumber()));
-  this->ui->lineEditRoverResponseNumber->setText(QString::number(myRover->getGoodResponseNumber()));
+  this->ui->lineEditManipulatorRequestNumber->setText(QString::number(myManipulator->getRequestNumber()));
+  this->ui->lineEditManipulatorResponseNumber->setText(QString::number(myManipulator->getGoodResponseNumber()));
 
   quint16 value;
   myManipulator->getRegister(0,value);
@@ -172,31 +169,38 @@ void MainWindow::initManipulatorAxisDisplayData(){
   this->ui->progressBarManipulatorAxis0->setMinimum(Manipulator::servoMin[0]);
   this->ui->progressBarManipulatorAxis0->setMaximum(Manipulator::servoMax[0]);
   this->ui->progressBarManipulatorAxis0->setValue(value);
+  this->ui->progressBarManipulatorAxis0->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
+
 
   myManipulator->getRegister(1,value);
   this->ui->progressBarManipulatorAxis1->setMinimum(Manipulator::servoMin[1]);
   this->ui->progressBarManipulatorAxis1->setMaximum(Manipulator::servoMax[1]);
   this->ui->progressBarManipulatorAxis1->setValue(value);
+  this->ui->progressBarManipulatorAxis1->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
   myManipulator->getRegister(2,value);
   this->ui->progressBarManipulatorAxis2->setMinimum(Manipulator::servoMin[2]);
   this->ui->progressBarManipulatorAxis2->setMaximum(Manipulator::servoMax[2]);
   this->ui->progressBarManipulatorAxis2->setValue(value);
+  this->ui->progressBarManipulatorAxis2->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
   myManipulator->getRegister(3,value);
   this->ui->progressBarManipulatorAxis3->setMinimum(Manipulator::servoMin[3]);
   this->ui->progressBarManipulatorAxis3->setMaximum(Manipulator::servoMax[3]);
   this->ui->progressBarManipulatorAxis3->setValue(value);
+  this->ui->progressBarManipulatorAxis3->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
   myManipulator->getRegister(4,value);
   this->ui->progressBarManipulatorMotorSpeed->setMinimum(0);
   this->ui->progressBarManipulatorMotorSpeed->setMaximum(1000);
-  this->ui->progressBarManipulatorAxis0->setValue(value);
+  this->ui->progressBarManipulatorMotorSpeed->setValue(value);
+  this->ui->progressBarManipulatorMotorSpeed->setStyleSheet("QProgressBar::chunk { background-color: #00ff00}");
 
   myManipulator->getRegister(5,value);
   this->ui->progressBarManipulatorUARTAngle->setMinimum(0);
   this->ui->progressBarManipulatorUARTAngle->setMaximum(300);
-  this->ui->progressBarManipulatorAxis0->setValue(value);
+  this->ui->progressBarManipulatorUARTAngle->setValue(value);
+  this->ui->progressBarManipulatorUARTAngle->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
 }
 
@@ -316,27 +320,44 @@ void MainWindow::updateRoverDisplayData(){
     // Latitude
     myRover->getRegister(46,value);
     this->ui->labelLatitudeDegrees->setText(QString::number(value));
+    actualGPSCoordinates.latitudeDegrees= value;
+
     myRover->getRegister(47,value);
     this->ui->labelLatitudeMinutes->setText(QString::number(value));
+    actualGPSCoordinates.latitudeMinutes= value;
+
     myRover->getRegister(48,value);
-    this->ui->labelLatitudeSeconds->setText(QString::number(value));
+    quint16 seconds = (double)value/10000 * 0.6;
+    this->ui->labelLatitudeSeconds->setText(QString::number(seconds));
+    actualGPSCoordinates.latitudeSeconds= seconds;
+
     myRover->getRegister(49,value);
     QString designator = QString(QChar(value));
     this->ui->labelLatitudeDesignator->setText(designator);
+    actualGPSCoordinates.latitudeDesignator = QChar(value);
+
     //Longnitude
     myRover->getRegister(50,value);
     this->ui->labelLongnitudeDegrees->setText(QString::number(value));
+    actualGPSCoordinates.longnitudeDegrees = value;
+
     myRover->getRegister(51,value);
     this->ui->labelLongnitudeMinutes->setText(QString::number(value));
+    actualGPSCoordinates.longnitudeMinutes = value;
+
     myRover->getRegister(52,value);
-    quint16 seconds = (double)value/10000 * 0.6;
+    seconds = (double)value/10000 * 0.6;
     this->ui->labelLongnitudeSeconds->setText(QString::number(seconds));
-    myRover->getRegister(53,value );
+    actualGPSCoordinates.longnitudeSeconds = seconds;
+
+    myRover->getRegister(53,value);
     designator = QString(QChar(value));
     this->ui->labelLongnitudeDesignator->setText(designator);
+    actualGPSCoordinates.longnitudeeDesignator = (QChar)value;
   }
 
   checkTelemetryValues();
+  //updateGPSWidget();
 }
 void MainWindow::setDisplayStyle(){
   this->setStyleSheet("QProgressBar { border: 1px solid grey; border-radius: 5px; };");
@@ -512,5 +533,30 @@ void MainWindow::checkTelemetryValues(){
     else
       this->ui->progressBarMotor21_Current->setStyleSheet("QProgressBar::chunk {  border-radius: 5px; background-color: #aaaaff}");
   }
+}
+//Settings
+//Rover
+void MainWindow::setStatusDiodeRover(bool status){
+  this->ui->statusDiodeRover->setStatus(status);
+}
+
+//Manipulator
+void MainWindow::setStatusDiodeManipulator(bool status){
+  this->ui->statusDiodeManipulator->setStatus(status);
+}
+
+GPSCoordinates::GPSCoordinates(float latitudeDegrees, float latitudeMinutes, float latitudeSeconds,
+                               QChar latitudeDesignator, float longnitudeDegrees, float longnitudeMinutes,
+                               float longnitudeSeconds, QChar longnitudeeDesignator){
+  this->latitudeDegrees=latitudeDegrees;
+  this->latitudeMinutes=latitudeMinutes;
+  this->latitudeSeconds=latitudeSeconds;
+  this->latitudeDesignator=latitudeDesignator;
+  this->longnitudeDegrees=longnitudeDegrees;
+  this->longnitudeMinutes=longnitudeMinutes;
+  this->longnitudeSeconds=longnitudeSeconds;
+  this->longnitudeeDesignator=longnitudeeDesignator;
+}
+GPSCoordinates::GPSCoordinates(){
 
 }

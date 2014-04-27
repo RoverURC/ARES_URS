@@ -17,6 +17,9 @@ public:
   static int const servoMin[];
   static int const servoMax[];
   int getAxisValue(int index);
+
+  int getGoodResponseNumber() const {return goodResponseCounter;}
+  int getRequestNumber() const { return requestCounter;}
 signals:
   void manipulatorDataUpdated();
 public slots:

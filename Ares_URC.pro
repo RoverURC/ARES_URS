@@ -16,7 +16,6 @@ SOURCES += main.cpp\
     modbusclient.cpp \
     modbusserver.cpp \
     connectionstatuswidget.cpp \
-    settingswindow.cpp \
     qjoystick.cpp \
     joystickview.cpp \
     rover.cpp \
@@ -27,7 +26,6 @@ HEADERS  += mainwindow.h \
     modbusserver.h \
     modbus.h \
     connectionstatuswidget.h \
-    settingswindow.h \
     qjoystick.h \
     joystickview.h \
     rover.h \
