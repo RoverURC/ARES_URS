@@ -7,14 +7,17 @@ int const Manipulator::servoMax[] = { 500, 380, 475, 550};
 int const Manipulator::servoMin[] = { 150, 100, 100, 100};
 int const MotorSpeedButton = 6;
 int const MotorSpeedIndex = 4;
+int const uartButton = 5;
+
 Manipulator::Manipulator(QObject *parent ) :
   ModbusClient(parent)
 {
+  uartStatus = false;
   motorStatus = false;
   requestCounter = 0;
   goodResponseCounter = 0;
   axisValues = new quint16[axisNumber];
-
+  uartValue = 0;
   for(int i=0; i<axisNumber;i++){
       axisValues[i] = servoInit[i];
     }
@@ -26,6 +29,8 @@ Manipulator::Manipulator(QObject *parent ) :
   incrementAxisTimer = new QTimer(this);
   incrementAxisTimer->start(50);
   connect(incrementAxisTimer,SIGNAL(timeout()),this,SLOT(incrementManipulatorAxisValues()));
+
+  connect(this,SIGNAL(transactionFinished(bool,qint8)),this,SLOT(proceedResponse(bool,qint8)));
 }
 Manipulator::~Manipulator(){
   delete[] axisValues;
@@ -50,6 +55,14 @@ void Manipulator::incrementManipulatorAxisValues(){
       setRegister(i, axisValues[i]);
       return;
     }
+  }
+  if(uartStatus == true){
+    uartValue += actualAxisValue;
+    if(uartValue <0)
+      uartValue =0;
+    if(uartValue > 300)
+      uartValue = 300;
+    setRegister(5,uartValue);
   }
 }
 void Manipulator::resetManipulator(){
@@ -92,23 +105,30 @@ void Manipulator::interpretJoypadButton(int id, bool status){
       motorStatus = false;
     }
   }
+  if(id == uartButton)
+    if(status == true){
+      uartStatus =  true;
+      qDebug()<<"UART STATUS IS TRUE";
+    }
+    else
+      uartStatus = false;
 }
 
 void Manipulator::interpretJoypadAxis(int id, qint16 value){
   if(id == 1){
-    actualAxisValue = value/5000;
+    actualAxisValue = value/20000;
     if(motorStatus==true)
       setRegister(MotorSpeedIndex,value/35);
   }
 
   if(id == 3){
-    qint16 uartAngle = (float)value/100;
-    if(uartAngle>300)
-      uartAngle = 300;
-    if(uartAngle<0)
-      uartAngle = 0;
+    actualAxisValue = value/20000;
+    //if(uartAngle>300)
+      //uartAngle = 300;
+    //if(uartAngle<0)
+      //uartAngle = 0;
 
-    setRegister(5,uartAngle);
+    //setRegister(5,uartAngle);
   }
 
 }

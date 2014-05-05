@@ -69,7 +69,7 @@ void ModbusClient::disconnected(){
   emit statusConnectedChanged(false);
 }
 void ModbusClient::readDataAndCheck(){
-
+  qDebug()<<"Reading response";
   responseTimer->stop();
 
   byteArrayInput.clear();
@@ -94,7 +94,7 @@ void ModbusClient::readDataAndCheck(){
   transactionID++;
   quint16 protocolIdentyfier;
   getQInt16(byteArrayInput, 2, protocolIdentyfier );
-
+  qDebug()<<"Reading 2";
   if(protocolIdentyfier!= 0){
     emit transactionFinished(false,MODBUS_ERROR_BADPROTOCOLID);
     return ;
@@ -109,12 +109,12 @@ void ModbusClient::readDataAndCheck(){
   }
   quint8 unitID;
   getQInt8(byteArrayInput, 6, unitID);
-
+  qDebug()<<"Reading 3";
   if(unitID!=255){
     emit transactionFinished(false,MODBUS_ERROR_BADUNITID);
     return ;
   }
-
+  qDebug()<<"Reading 4";
   quint8 functionCode;
   getQInt8(byteArrayInput, 7, functionCode);
 

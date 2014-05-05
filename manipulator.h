@@ -37,11 +37,12 @@ private:
   quint16 *axisValues;
   bool *axisStatus;
   bool motorStatus;
+  bool uartStatus;
   QTimer *incrementAxisTimer;
 
   int requestCounter;
   int goodResponseCounter;
-
+  quint16 uartValue;
 
 };
 
