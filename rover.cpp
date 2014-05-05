@@ -48,9 +48,12 @@ void Rover::interpretJoypadButton(int id, bool status){
 }
 void Rover::setLeftPWM(qint16 value){
   setRegister(32, value);
+  qDebug()<<"LEFT"<<value;
+
 }
 void Rover::setRightPWM(qint16 value){
   setRegister(33, value);
+  qDebug()<<"RIGHT"<<value;
 }
 //Set speed and direction of each engine
 void Rover::interpretJoypadAxis(int id, qint16 value){

@@ -14,6 +14,7 @@ public:
   void resetManipulator();
 
   static int const axisNumber;
+  static int const servoInit[];
   static int const servoMin[];
   static int const servoMax[];
   int getAxisValue(int index);

@@ -25,7 +25,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -1818,13 +1818,13 @@
              <bool>false</bool>
             </property>
            </widget>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>10</x>
               <y>284</y>
               <width>144</width>
-              <height>121</height>
+              <height>159</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -1978,23 +1978,6 @@
              </item>
             </layout>
            </widget>
-           <zorder>layoutWidget</zorder>
-           <zorder>layoutWidget</zorder>
-           <zorder>widgetJoypadRover</zorder>
-           <zorder></zorder>
-           <zorder>progressBarManipulatorAxis0</zorder>
-           <zorder>progressBarManipulatorUARTAngle</zorder>
-           <zorder>progressBarManipulatorMotorSpeed</zorder>
-           <zorder>progressBarManipulatorAxis2</zorder>
-           <zorder>progressBarManipulatorAxis3</zorder>
-           <zorder>progressBarManipulatorAxis1</zorder>
-           <zorder>label_59</zorder>
-           <zorder>label_60</zorder>
-           <zorder>label_61</zorder>
-           <zorder>label_62</zorder>
-           <zorder>label_63</zorder>
-           <zorder>label_64</zorder>
-           <zorder>label_58</zorder>
           </widget>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
@@ -3502,36 +3485,6 @@
      </layout>
     </item>
    </layout>
-   <zorder>progressBarManipulatorAxis0</zorder>
-   <zorder>progressBarManipulatorAxis1</zorder>
-   <zorder>progressBarManipulatorAxis2</zorder>
-   <zorder>progressBarManipulatorAxis4</zorder>
-   <zorder>label_58</zorder>
-   <zorder>label_59</zorder>
-   <zorder>label_60</zorder>
-   <zorder>label_61</zorder>
-   <zorder>label_62</zorder>
-   <zorder>label_63</zorder>
-   <zorder>label_63</zorder>
-   <zorder>progressBarManipulatorUARTAngle</zorder>
-   <zorder>progressBarManipulatorUARTAngle</zorder>
-   <zorder>progressBarManipulatorAxis0</zorder>
-   <zorder>progressBarManipulatorAxis2</zorder>
-   <zorder>label_59</zorder>
-   <zorder>label_61</zorder>
-   <zorder>progressBarManipulatorAxis3</zorder>
-   <zorder>label_63</zorder>
-   <zorder>label_60</zorder>
-   <zorder>label_62</zorder>
-   <zorder>progressBarManipulatorAxis1</zorder>
-   <zorder>layoutWidget_2</zorder>
-   <zorder>label_43</zorder>
-   <zorder>statusDiodeRover</zorder>
-   <zorder>statusDiodeManipulator</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>label_55</zorder>
-   <zorder>label_46</zorder>
-   <zorder>horizontalSpacer_4</zorder>
    <zorder></zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">

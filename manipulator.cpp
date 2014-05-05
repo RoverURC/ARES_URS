@@ -1,20 +1,22 @@
 #include "manipulator.h"
 
-
+// Axis 0 (Pin PWM 0,1), Axis 1 (Pin PWM 2), Axis 2 (Pin PWM 3), Axis 3 (Pin PWM 4)
 int const Manipulator::axisNumber = 4;
-int const Manipulator::servoMax[] = { 500, 400, 550, 550};
+int const Manipulator::servoInit[] = {250,250,250,250};
+int const Manipulator::servoMax[] = { 500, 380, 475, 550};
 int const Manipulator::servoMin[] = { 150, 100, 100, 100};
-int const MotorSpeedButton = 4;
+int const MotorSpeedButton = 6;
 int const MotorSpeedIndex = 4;
 Manipulator::Manipulator(QObject *parent ) :
   ModbusClient(parent)
 {
+  motorStatus = false;
   requestCounter = 0;
   goodResponseCounter = 0;
   axisValues = new quint16[axisNumber];
 
   for(int i=0; i<axisNumber;i++){
-      axisValues[i] = servoMin[i];
+      axisValues[i] = servoInit[i];
     }
 
   axisStatus = new bool[axisNumber];
