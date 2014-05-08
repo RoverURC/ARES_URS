@@ -19,7 +19,9 @@ SOURCES += main.cpp\
     qjoystick.cpp \
     joystickview.cpp \
     rover.cpp \
-    manipulator.cpp
+    manipulator.cpp \
+    widgetgps.cpp \
+    gpscoordinates.cpp
 
 HEADERS  += mainwindow.h \
     modbusclient.h \
@@ -30,9 +32,10 @@ HEADERS  += mainwindow.h \
     joystickview.h \
     rover.h \
     manipulator.h \
-    motorcodes.h
+    motorcodes.h \
+    widgetgps.h \
+    gpscoordinates.h
 
-FORMS    += mainwindow.ui \
-    settingswindow.ui
+FORMS    += mainwindow.ui
 
 LIBS += -lSDL

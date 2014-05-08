@@ -25,7 +25,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -1985,7 +1985,31 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_34">
             <item>
-             <widget class="QGraphicsView" name="graphicsView"/>
+             <widget class="WidgetGPS" name="widgetGPS"/>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <widget class="QPushButton" name="pushButtonResetGPS">
+                <property name="text">
+                 <string>Reset</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_6">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_33">
@@ -3525,6 +3549,11 @@
    <extends>QWidget</extends>
    <header>connectionstatuswidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WidgetGPS</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">widgetgps.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

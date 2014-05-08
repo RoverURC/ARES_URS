@@ -128,11 +128,15 @@ MainWindow::~MainWindow(){
 // Is done only once
 void MainWindow::createManipulatorJoystick(){
   myJoystickManipulator->setJoystick(this->ui->comboBoxManipulatorJoystick->currentIndex());
+  this->ui->comboBoxManipulatorJoystick->setDisabled(true);
+  this->ui->pushButtonSelectManipulatorJoypad->setDisabled(true);
   joypadManipulatorRefresh->start(20);
 }
 // Is done only once
 void MainWindow::createRoverJoystick(){
   myJoystickRover->setJoystick(this->ui->comboBoxRoverJoystick->currentIndex());
+  this->ui->comboBoxRoverJoystick->setDisabled(true);
+  this->ui->pushButtonSelectRoverJoypad->setDisabled(true);
   joypadRoverRefresh->start(20);
 }
 void MainWindow::updateManipulatorDisplayData(){
@@ -203,7 +207,6 @@ void MainWindow::initManipulatorAxisDisplayData(){
   this->ui->progressBarManipulatorUARTAngle->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
 }
-
 void MainWindow::updateRoverDisplayData(){
 
   //Connection stats
@@ -311,51 +314,62 @@ void MainWindow::updateRoverDisplayData(){
     //Time
     quint16 value;
     myRover->getRegister(41,value);
+    qDebug()<<"HOUR"<<value;
     this->ui->labelGpsHour->setText(QString::number(value));
     myRover->getRegister(42,value);
+    qDebug()<<"MINUTE"<<value;
     this->ui->labelGpsMinute->setText(QString::number(value));
     myRover->getRegister(43,value);
+    qDebug()<<"SECOND"<<value;
     this->ui->labelGpsSecond->setText(QString::number(value));
     //
     // Latitude
     myRover->getRegister(46,value);
-    this->ui->labelLatitudeDegrees->setText(QString::number(value));
-    actualGPSCoordinates.latitudeDegrees= value;
+    double latitudeDegrees = value;
+    this->ui->labelLatitudeDegrees->setText(QString::number(latitudeDegrees));
+    actualGPSCoordinates.latitudeDegrees= latitudeDegrees;
 
     myRover->getRegister(47,value);
-    this->ui->labelLatitudeMinutes->setText(QString::number(value));
-    actualGPSCoordinates.latitudeMinutes= value;
+    double latitudeMinutes = value;
+    this->ui->labelLatitudeMinutes->setText(QString::number(latitudeMinutes));
+    actualGPSCoordinates.latitudeMinutes= latitudeMinutes;
 
     myRover->getRegister(48,value);
-    quint16 seconds = (double)value/10000 * 0.6;
-    this->ui->labelLatitudeSeconds->setText(QString::number(seconds));
-    actualGPSCoordinates.latitudeSeconds= seconds;
+    double latitudeSeconds = (double)value/10000 * 0.6;
+    this->ui->labelLatitudeSeconds->setText(QString::number(latitudeSeconds));
+    actualGPSCoordinates.latitudeSeconds= latitudeSeconds;
 
     myRover->getRegister(49,value);
-    QString designator = QString(QChar(value));
-    this->ui->labelLatitudeDesignator->setText(designator);
-    actualGPSCoordinates.latitudeDesignator = QChar(value);
+    QChar designator = QChar(value);
+    QChar latitudeDesignator = designator;
+    this->ui->labelLatitudeDesignator->setText(QString(designator));
+    actualGPSCoordinates.latitudeDesignator = value;
 
     //Longnitude
     myRover->getRegister(50,value);
-    this->ui->labelLongnitudeDegrees->setText(QString::number(value));
-    actualGPSCoordinates.longnitudeDegrees = value;
+    double longnitudeDegrees = value;
+    this->ui->labelLongnitudeDegrees->setText(QString::number(longnitudeDegrees));
+    actualGPSCoordinates.longnitudeDegrees = longnitudeDegrees;
 
     myRover->getRegister(51,value);
-    this->ui->labelLongnitudeMinutes->setText(QString::number(value));
-    actualGPSCoordinates.longnitudeMinutes = value;
+    double longnitudeMinutes = value;
+    this->ui->labelLongnitudeMinutes->setText(QString::number(longnitudeMinutes));
+    actualGPSCoordinates.longnitudeMinutes = longnitudeMinutes;
 
     myRover->getRegister(52,value);
-    seconds = (double)value/10000 * 0.6;
-    this->ui->labelLongnitudeSeconds->setText(QString::number(seconds));
-    actualGPSCoordinates.longnitudeSeconds = seconds;
+    double longnitudeSeconds = (double)value/10000 * 0.6;;
+    this->ui->labelLongnitudeSeconds->setText(QString::number(longnitudeSeconds));
+    actualGPSCoordinates.longnitudeSeconds = longnitudeSeconds;
 
     myRover->getRegister(53,value);
-    designator = QString(QChar(value));
-    this->ui->labelLongnitudeDesignator->setText(designator);
-    actualGPSCoordinates.longnitudeeDesignator = (QChar)value;
-  }
+    designator = QChar(value);
 
+    this->ui->labelLongnitudeDesignator->setText(designator);
+    actualGPSCoordinates.longnitudeeDesignator = designator;
+
+   //ui->widgetGPS->addPoint(actualGPSCoordinates);
+
+  }
   checkTelemetryValues();
   //updateGPSWidget();
 }
@@ -365,9 +379,9 @@ void MainWindow::setDisplayStyle(){
 //Checks if motor driver volages and current arent too big and warn operator
 void MainWindow::checkTelemetryValues(){
   const int value5V = 5000;
-  const int value12V = 12000;
-  const int value24V = 24000;
-  const int valueAccV = 24000;
+  const int value12V = 13000;
+  const int value24V = 25000;
+  const int valueAccV = 25000;
   const int current = 3000;
   //5V
   {
@@ -543,20 +557,4 @@ void MainWindow::setStatusDiodeRover(bool status){
 //Manipulator
 void MainWindow::setStatusDiodeManipulator(bool status){
   this->ui->statusDiodeManipulator->setStatus(status);
-}
-
-GPSCoordinates::GPSCoordinates(float latitudeDegrees, float latitudeMinutes, float latitudeSeconds,
-                               QChar latitudeDesignator, float longnitudeDegrees, float longnitudeMinutes,
-                               float longnitudeSeconds, QChar longnitudeeDesignator){
-  this->latitudeDegrees=latitudeDegrees;
-  this->latitudeMinutes=latitudeMinutes;
-  this->latitudeSeconds=latitudeSeconds;
-  this->latitudeDesignator=latitudeDesignator;
-  this->longnitudeDegrees=longnitudeDegrees;
-  this->longnitudeMinutes=longnitudeMinutes;
-  this->longnitudeSeconds=longnitudeSeconds;
-  this->longnitudeeDesignator=longnitudeeDesignator;
-}
-GPSCoordinates::GPSCoordinates(){
-
 }

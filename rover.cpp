@@ -13,34 +13,35 @@ Rover::Rover(QObject *parent ) :
   connect(this,SIGNAL(transactionFinished(bool,qint8)),this,SLOT(proceedResponse(bool,qint8)));
 }
 void Rover::sendRoverData(){
-  qDebug()<<"Sending rover data";
 
-  writeMultipleRegisters(32,2);
+  setRegister(10, 15);
+  setRegister(11, 16);
+  writeMultipleRegisters(10,2);
 }
 void Rover::readRoverData(){
-  qDebug()<<"Reading Rover Data";
 
   //Read Voltage and Current from motor drivers
 
   readHoldingRegisters(1,30);
 
-  //Read GPS Data from PLC
 }
 void Rover::readGPSData(){
 
-
+  readHoldingRegisters(40,21);
 }
 
 void Rover::updateRoverData(){
   if(isWaitingForResponse)
     return;
   requestCounter ++;
-  if(requestCounter % 2){
+  if(requestCounter % 3 == 0){
     sendRoverData();
   }
-  else{
+  else if (requestCounter % 3 == 1){
     readRoverData();
   }
+  else
+    readGPSData();
 }
 
 void Rover::interpretJoypadButton(int id, bool status){

@@ -10,24 +10,7 @@
 #include "qjoystick.h"
 #include "rover.h"
 #include "manipulator.h"
-
-class GPSCoordinates
-{
-public:
-  GPSCoordinates();
-  GPSCoordinates(float latitudeDegrees, float latitudeMinutes, float latitudeSeconds, QChar latitudeDesignator,
-                 float longnitudeDegrees, float longnitudeMinutes, float longnitudeSeconds, QChar longnitudeeDesignator);
-
-  float latitudeDegrees;
-  float latitudeMinutes;
-  float latitudeSeconds;
-  QChar latitudeDesignator;
-
-  float longnitudeDegrees;
-  float longnitudeMinutes;
-  float longnitudeSeconds;
-  QChar longnitudeeDesignator;
-};
+#include <gpscoordinates.h>
 
 namespace Ui {
   class MainWindow;

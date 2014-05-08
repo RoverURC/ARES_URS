@@ -69,7 +69,6 @@ void ModbusClient::disconnected(){
   emit statusConnectedChanged(false);
 }
 void ModbusClient::readDataAndCheck(){
-  qDebug()<<"Reading response";
   responseTimer->stop();
 
   byteArrayInput.clear();
@@ -81,6 +80,7 @@ void ModbusClient::readDataAndCheck(){
 
   //Analyze Modbus frame
   if(byteArrayInput.size()<8){
+
     emit transactionFinished(false,MODBUS_ERROR_BADFORMAT);
     return ;
   }
@@ -88,13 +88,13 @@ void ModbusClient::readDataAndCheck(){
   getQInt16(byteArrayInput, 0, incomingTransactionID);
 
   if(incomingTransactionID!=transactionID){
+
     emit transactionFinished(false,MODBUS_ERROR_BADTRANSACTIONID);
     return ;
   }
   transactionID++;
   quint16 protocolIdentyfier;
   getQInt16(byteArrayInput, 2, protocolIdentyfier );
-  qDebug()<<"Reading 2";
   if(protocolIdentyfier!= 0){
     emit transactionFinished(false,MODBUS_ERROR_BADPROTOCOLID);
     return ;
@@ -104,17 +104,17 @@ void ModbusClient::readDataAndCheck(){
   getQInt16(byteArrayInput, 4, length);
 
   if(byteArrayInput.size()!=length+6){
+
     emit transactionFinished(false, MODBUS_ERROR_BADFORMAT);
     return ;
   }
   quint8 unitID;
   getQInt8(byteArrayInput, 6, unitID);
-  qDebug()<<"Reading 3";
   if(unitID!=255){
+
     emit transactionFinished(false,MODBUS_ERROR_BADUNITID);
     return ;
   }
-  qDebug()<<"Reading 4";
   quint8 functionCode;
   getQInt8(byteArrayInput, 7, functionCode);
 
@@ -130,6 +130,7 @@ void ModbusClient::readDataAndCheck(){
           return;
         }
         default:{
+
           emit transactionFinished(false, MODBUS_ERROR_BADRESPONSEFC);
           return;
         }
@@ -246,7 +247,6 @@ bool ModbusClient::writeSingleRegister(quint16 registerAddress){
     return false;
 }
 bool ModbusClient::writeMultipleRegisters(quint16 startingAddress, quint16 quantityOfRegisters){
-  
   if(!statusConnected)
     return false;
   if(isWaitingForResponse)
@@ -381,7 +381,6 @@ bool ModbusClient::proceedReadHoldingRegistersResponse(){
 
   if(byteArrayInput.size() != (9+2*quantityOfRegisters)){
     emit transactionFinished(false, MODBUS_ERROR_BADFORMAT);
-      qDebug()<<"1";
     return false;
   }
   quint8 bytesCount;

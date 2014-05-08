@@ -42,7 +42,7 @@ private:
 
   int requestCounter;
   int goodResponseCounter;
-  quint16 uartValue;
+  qint16 uartValue;
 
 };
 
