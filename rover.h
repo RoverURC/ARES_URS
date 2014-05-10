@@ -87,23 +87,28 @@ class Rover : public ModbusClient
   Q_OBJECT
 public:
 
-  explicit Rover(QObject *parent = 0);
+  static int const leftAxis;
+  static int const rightAxis;
+  static int const numberOfSpeedButtons;
+  static int const speedButtonsIDTable[];
+  static int const speedButtonsSpeedsTable[];
 
+  explicit Rover(QObject *parent = 0);
   int getGoodResponseNumber() const {return goodResponseCounter;}
   int getRequestNumber() const { return requestCounter;}
+
+  int getLeftPWM() const;
+  int getRightPWM() const;
 signals:
   void roverDataUpdated();
 public slots:
   //Sends and reads RoverData
   void updateRoverData();
-
   void interpretJoypadButton(int id, bool status);
   void interpretJoypadAxis(int id, qint16 value);
 
 private slots:
-
   void proceedResponse(bool status, qint8 errorCode);
-
 private:
   int goodResponseCounter;
   int requestCounter;
@@ -112,8 +117,6 @@ private:
   void sendRoverData();
   void readRoverData();
   void readGPSData();
-  quint16 connectionIndicator;
-
 };
 
 #endif // ROVER_H

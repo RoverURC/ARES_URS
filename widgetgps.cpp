@@ -4,19 +4,19 @@
 WidgetGPS::WidgetGPS(QWidget *parent) :
   QGraphicsView(parent)
 {
-  pointList.clear();
+  coordinatesList.clear();
   myScene = new QGraphicsScene(this);
   this->setScene(myScene);
   this->addCoordinates(QGeoCoordinate(0,0));
-  actualCoordinate.setLatitude(0);
-  actualCoordinate.setLongitude(0);
+  targetCoordinate.setLatitude(0);
+  targetCoordinate.setLongitude(0);
 }
 void WidgetGPS::reset(){
-  pointList.clear();
+  coordinatesList.clear();
   update();
 }
 void WidgetGPS::addCoordinates(QGeoCoordinate coordinate){
-  pointList.append(coordinate);
+  coordinatesList.append(coordinate);
   this->update();
 }
 
@@ -24,16 +24,16 @@ void WidgetGPS::paintEvent(QPaintEvent *event){
   myScene->deleteLater();
   myScene = new QGraphicsScene();
 
-  for (int i=0 ; i<pointList.size(); i++){
-    MyPoint point = calculateXY(pointList[i]);
+  for (int i=0 ; i<coordinatesList.size(); i++){
+    MyPoint point = calculateXY(coordinatesList[i]);
     myScene->addEllipse(point.x,point.y,0.3,0.3,QPen(Qt::transparent),QBrush(Qt::black));
-    qDebug()<<"PX"<<point.x;
-    qDebug()<<"PY"<<point.y;
+    //qDebug()<<"PX"<<point.x;
+    //qDebug()<<"PY"<<point.y;
   }
-  MyPoint point = calculateXY(actualCoordinate);
+  MyPoint point = calculateXY(targetCoordinate);
   myScene->addEllipse(point.x,point.y, 0.3, 0.3,QPen(Qt::transparent),QBrush(Qt::red));
-  qDebug()<<"AX"<<point.x;
-  qDebug()<<"AY"<<point.y;
+  //qDebug()<<"AX"<<point.x;
+  //qDebug()<<"AY"<<point.y;
 
   setScene(myScene);
   QGraphicsView::fitInView(scene()->sceneRect(), Qt::KeepAspectRatio );
@@ -44,13 +44,13 @@ void WidgetGPS::resizeEvent(QResizeEvent *){
 
 }
 
-void WidgetGPS::setActualCoordinate(QGeoCoordinate coordinate){
-  actualCoordinate = coordinate;
+void WidgetGPS::setTargetCoordinate(QGeoCoordinate coordinate){
+  targetCoordinate = coordinate;
 }
-MyPoint WidgetGPS::calculateXY(QGeoCoordinate coordinates){
+MyPoint WidgetGPS::calculateXY(QGeoCoordinate coordinate){
   MyPoint point(0,0);
-  point.x = coordinates.longitude()*10000;
-  point.y = coordinates.latitude()*10000;
+  point.x = coordinate.longitude()*10000;
+  point.y = coordinate.latitude()*10000;
   return point;
 }
 

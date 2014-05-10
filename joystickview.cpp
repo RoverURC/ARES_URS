@@ -147,7 +147,7 @@ void JoystickView::paintEvent(QPaintEvent *){
 void JoystickView::changeButtonState(int id, bool status){
   if(id<0 || id>=numberOfButtons)
     return;
-  qDebug()<<"ID"<<id;
+  //qDebug()<<"ID"<<id;
   buttons[id] = status;
   update();
 }
@@ -155,7 +155,7 @@ void JoystickView::changeButtonState(int id, bool status){
 void JoystickView::changeAxisStat(int id, qint16 value){
   if(id<0 || id>=numberOfAxis)
     return;
-  qDebug()<<"ID"<<id<<" "<<value;
+  //qDebug()<<"ID"<<id<<" "<<value;
   axis[id] = value;
   update();
 }

@@ -19,19 +19,19 @@ class WidgetGPS : public QGraphicsView
   Q_OBJECT
 public:
   explicit WidgetGPS(QWidget *parent = 0);
-  QGeoCoordinate actualCoordinate;
 signals:
 
 public slots:
   void reset();
   void addCoordinates(QGeoCoordinate coordinate);
-  void setActualCoordinate(QGeoCoordinate coordinate);
+  void setTargetCoordinate(QGeoCoordinate coordinate);
 protected:
   void paintEvent(QPaintEvent *event);
   void resizeEvent(QResizeEvent *);
 private:
-  QList<QGeoCoordinate> pointList;
-  MyPoint calculateXY(QGeoCoordinate coordinates);
+  QList<QGeoCoordinate> coordinatesList;
+  QGeoCoordinate targetCoordinate;
+  MyPoint calculateXY(QGeoCoordinate coordinate);
 
   QGeoLocation  *myGeoLocation;
   QGraphicsScene *myScene;

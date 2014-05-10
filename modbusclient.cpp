@@ -1,10 +1,10 @@
 #include "modbusclient.h"
-
 ModbusClient::ModbusClient(QObject *parent) :
   QObject(parent)
 {
   statusConnected = false;
   isWaitingForResponse = false;
+
   transactionID = 1;
 
   //Create table of registers
@@ -15,7 +15,7 @@ ModbusClient::ModbusClient(QObject *parent) :
   }
 
   responseTimer = new QTimer(this);
-  setResponseTimerTimeout(200);
+  setResponseTimerTimeout(500);
   connect(responseTimer,SIGNAL(timeout()),this,SLOT(transactionTimeout()));
 
   mySocket = new QTcpSocket(this);
@@ -33,29 +33,40 @@ ModbusClient::~ModbusClient(){
 }
 
 bool ModbusClient::connectToModbusServer(QString ip, int port){
+
   qDebug()<<"Connecting";
   qDebug()<<ip<< " Port "<< port;
-  if(!mySocket->isOpen()){
+  if(mySocket->state() == QAbstractSocket::UnconnectedState){
       mySocket->connectToHost(ip,port);
   }
-  else{
+  else if(mySocket->state() == QAbstractSocket::ConnectedState){
     mySocket->disconnectFromHost();
     if(!mySocket->waitForDisconnected(1000))
       qDebug()<<"Error while disconnecting";
     mySocket->connectToHost(ip,port);
   }
-  if(!mySocket->waitForConnected(2000))
+  else{
+    emit disconnected();
+    mySocket->deleteLater();
+    mySocket = new QTcpSocket(this);
+    mySocket->connectToHost(ip, port);
+  }
+  if(mySocket->waitForConnected(2000))
+    return true;
+  else
     return false;
-  return true;
 }
 bool ModbusClient::disconnectFromModbusServer(){
-  if(mySocket->isOpen()){
+  if(mySocket->state() != QAbstractSocket::UnconnectedState){
     mySocket->disconnectFromHost();
-    if(!mySocket->waitForDisconnected(2000)){
+    if(!mySocket->waitForDisconnected(1000)){
       qDebug()<<"Error while disconnecting";
       return false;
     }
   }
+  else
+    qDebug()<<"Is Already Disconnected";
+    emit disconnected();
   return true;
 }
 
@@ -69,6 +80,7 @@ void ModbusClient::disconnected(){
   emit statusConnectedChanged(false);
 }
 void ModbusClient::readDataAndCheck(){
+  //Stop counting timeout
   responseTimer->stop();
 
   byteArrayInput.clear();
@@ -79,45 +91,53 @@ void ModbusClient::readDataAndCheck(){
   isWaitingForResponse = false;
 
   //Analyze Modbus frame
+
+  //Check minimum size
   if(byteArrayInput.size()<8){
 
     emit transactionFinished(false,MODBUS_ERROR_BADFORMAT);
     return ;
   }
+
+  //Check transaction ID
   quint16 incomingTransactionID;
   getQInt16(byteArrayInput, 0, incomingTransactionID);
-
   if(incomingTransactionID!=transactionID){
 
     emit transactionFinished(false,MODBUS_ERROR_BADTRANSACTIONID);
-    return ;
+    return;
   }
   transactionID++;
+
+  //Check protocolIdentyfier
   quint16 protocolIdentyfier;
   getQInt16(byteArrayInput, 2, protocolIdentyfier );
   if(protocolIdentyfier!= 0){
     emit transactionFinished(false,MODBUS_ERROR_BADPROTOCOLID);
-    return ;
+    return;
   }
 
+  //Check data length
   quint16 length;
   getQInt16(byteArrayInput, 4, length);
-
   if(byteArrayInput.size()!=length+6){
-
     emit transactionFinished(false, MODBUS_ERROR_BADFORMAT);
-    return ;
+    return;
   }
+
+  //Check unit ID // It really doesnt matter
   quint8 unitID;
   getQInt8(byteArrayInput, 6, unitID);
   if(unitID!=255){
-
     emit transactionFinished(false,MODBUS_ERROR_BADUNITID);
-    return ;
+    return;
   }
+
+  //Get function Code
   quint8 functionCode;
   getQInt8(byteArrayInput, 7, functionCode);
 
+  //Check last request code, and see if response is good
   switch(waitingFunctionCode){
     case MODBUS_FC_WRITE_SINGLE_REGISTER: {
       switch(functionCode){
@@ -130,12 +150,10 @@ void ModbusClient::readDataAndCheck(){
           return;
         }
         default:{
-
           emit transactionFinished(false, MODBUS_ERROR_BADRESPONSEFC);
           return;
         }
       }
-      return;
     }
     case MODBUS_FC_WRITE_MULTIPLE_REGISTERS: {
       switch(functionCode){
@@ -152,7 +170,6 @@ void ModbusClient::readDataAndCheck(){
           return ;
         }
       }
-        return;
     }
     case MODBUS_FC_READ_HOLDING_REGISTERS: {
       switch(functionCode){
@@ -169,28 +186,29 @@ void ModbusClient::readDataAndCheck(){
           return ;
         }
       }
-        return;
     }
     default:{
-      qDebug()<<"That should never happen";
+      qDebug()<<"That should never happen becouse we dont use different modbus functions";
       return;
     }
   }
 }
 
+//Internal Modbus register operations
 bool ModbusClient::setRegister(int index, quint16 value){
   if(index<0 || index>=holdingRegistersSize)
     return false;
   holdingRegisters[index]=value;
   return true;
 }
-bool ModbusClient::getRegister(int index, quint16 &value){
+bool ModbusClient::getRegister(int index, quint16 &value) const{
   if(index<0 || index>=holdingRegistersSize)
     return false;
   value = holdingRegisters[index];
   return true;
 }
 
+//Additional helping functions
 bool ModbusClient::getQInt16(QByteArray array, int index, quint16 &output){
   if((index+1)>=array.size())
     return false;
@@ -216,6 +234,7 @@ bool ModbusClient::setQInt8(QByteArray &array, int index, quint8 input){
   *((quint8*)array.data()+index)=input;
     return true;
 }
+
 bool ModbusClient::writeSingleRegister(quint16 registerAddress){
   if(!statusConnected)
     return false;
@@ -345,6 +364,7 @@ void ModbusClient::formatHeader(quint16 length){
   setQInt8(byteArrayOutput, 6, unitID);
 }
 bool ModbusClient::proceedIncomingError(){
+  qDebug()<<"Incoming Modbus Error";
   if(byteArrayInput.size()!=9)
     return false;
   quint8 errorCode;
@@ -427,8 +447,6 @@ bool ModbusClient::proceedWriteMultipleRegistersResponse(){
   emit transactionFinished(true, MODBUS_ERROR_SUCCESS);
   return true;
 }
-
-
 void ModbusClient::transactionTimeout(){
   responseTimer->stop();
   isWaitingForResponse = false;

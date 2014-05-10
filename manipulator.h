@@ -14,11 +14,12 @@ public:
   void resetManipulator();
 
   static int const axisNumber;
-  static int const servoInit[];
-  static int const servoMin[];
-  static int const servoMax[];
-  int getAxisValue(int index);
+  static int const axisInit[];
+  static int const axisMin[];
+  static int const axisMax[];
+  static int const axisButtonId[];
 
+  int getAxisValue(int index);
   int getGoodResponseNumber() const {return goodResponseCounter;}
   int getRequestNumber() const { return requestCounter;}
 signals:
@@ -33,17 +34,13 @@ private slots:
 private:
   void sendManipulatorData();
 
-  qint16 actualAxisValue;
-  quint16 *axisValues;
+  qint16 actualJoypadAxisValue;
+  qint16 *axisValues;
   bool *axisStatus;
-  bool motorStatus;
-  bool uartStatus;
   QTimer *incrementAxisTimer;
 
   int requestCounter;
   int goodResponseCounter;
-  qint16 uartValue;
-
 };
 
 #endif // MANIPULATOR_H

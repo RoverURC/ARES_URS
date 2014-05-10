@@ -61,9 +61,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(myJoystickRover,SIGNAL(axisChanged(int,qint16)),this->ui->widgetJoypadRover,SLOT(changeAxisStat(int,qint16)));
   connect(myJoystickRover,SIGNAL(buttonChanged(int,bool)),this->ui->widgetJoypadRover,SLOT(changeButtonState(int,bool)));
 
-  //Show data on joypadRoverWidget (temp rover, couse we will have different graphics)
-  connect(myJoystickManipulator,SIGNAL(axisChanged(int,qint16)),this->ui->widgetJoypadRover,SLOT(changeAxisStat(int,qint16)));
-  connect(myJoystickManipulator,SIGNAL(buttonChanged(int, bool)),this->ui->widgetJoypadRover,SLOT(changeButtonState(int,bool)));
+  //Show data on joypadManipulatorWidget
+  connect(myJoystickManipulator,SIGNAL(axisChanged(int,qint16)),this->ui->widgetJoypadManipulator,SLOT(changeAxisStat(int,qint16)));
+  connect(myJoystickManipulator,SIGNAL(buttonChanged(int, bool)),this->ui->widgetJoypadManipulator,SLOT(changeButtonState(int,bool)));
 
   //Rover sending and reading data via modbus (time intervals)
   roverRefresh = new QTimer(this);
@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(myManipulator,SIGNAL(manipulatorDataUpdated()),this,SLOT(updateManipulatorDisplayData()));
 
   initManipulatorAxisDisplayData();
+  initRoverDisplayData();
   setDisplayStyle();
 
   for(int i=0;i<QJoystick::availableJoysticks();i++){
@@ -104,12 +105,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::connectToHostManipulator(){
   if(myManipulator->connectToModbusServer(ui->lineEditIPManipulator->text(), ui->lineEditPortManipulator->text().toInt()))
-    manipulatorRefresh->start(400);
+    manipulatorRefresh->start(500);
 }
 
 void MainWindow::connectToHostRover(){
   if(myRover->connectToModbusServer(ui->lineEditIPRover->text(), ui->lineEditPortRover->text().toInt()))
-    roverRefresh->start(50);
+    roverRefresh->start(10);
 }
 
 void MainWindow::disconnectFromHostManipulator(){
@@ -130,19 +131,20 @@ void MainWindow::createManipulatorJoystick(){
   myJoystickManipulator->setJoystick(this->ui->comboBoxManipulatorJoystick->currentIndex());
   this->ui->comboBoxManipulatorJoystick->setDisabled(true);
   this->ui->pushButtonSelectManipulatorJoypad->setDisabled(true);
-  joypadManipulatorRefresh->start(20);
+  joypadManipulatorRefresh->start(5);
 }
 // Is done only once
 void MainWindow::createRoverJoystick(){
   myJoystickRover->setJoystick(this->ui->comboBoxRoverJoystick->currentIndex());
   this->ui->comboBoxRoverJoystick->setDisabled(true);
   this->ui->pushButtonSelectRoverJoypad->setDisabled(true);
-  joypadRoverRefresh->start(20);
+  joypadRoverRefresh->start(5);
 }
 void MainWindow::updateManipulatorDisplayData(){
   //Connection stats
   this->ui->lineEditManipulatorRequestNumber->setText(QString::number(myManipulator->getRequestNumber()));
   this->ui->lineEditManipulatorResponseNumber->setText(QString::number(myManipulator->getGoodResponseNumber()));
+  this->ui->lineEditManipulatorBadResponseNumber->setText(QString::number(myManipulator->getRequestNumber()-myManipulator->getGoodResponseNumber()));
 
   quint16 value;
   myManipulator->getRegister(0,value);
@@ -153,67 +155,69 @@ void MainWindow::updateManipulatorDisplayData(){
   this->ui->progressBarManipulatorAxis2->setValue(value);
   myManipulator->getRegister(3,value);
   this->ui->progressBarManipulatorAxis3->setValue(value);
-
   myManipulator->getRegister(4,value);
-  if((qint16)value>0){
-    this->ui->progressBarManipulatorMotorSpeed->setValue((qint16)value);
-    this->ui->progressBarManipulatorMotorSpeed->setStyleSheet("QProgressBar::chunk { background-color: #00ff00}");
-  }
-  else{
-    this->ui->progressBarManipulatorMotorSpeed->setValue(abs((qint16)value));
-    this->ui->progressBarManipulatorMotorSpeed->setStyleSheet("QProgressBar::chunk { background-color: #0000ff}");
-  }
-
+  this->ui->progressBarManipulatorAxis4->setValue(value);
   myManipulator->getRegister(5,value);
-  this->ui->progressBarManipulatorUARTAngle->setValue(value);
+  this->ui->progressBarManipulatorAxis5->setValue(qint16(value));
 }
+void MainWindow::initRoverDisplayData(){
+  this->ui->progressBarLeftPWM->setMaximum(1000);
+  this->ui->progressBarLeftPWM->setMinimum(-1000);
+
+  this->ui->progressBarRightPWM->setMaximum(1000);
+  this->ui->progressBarRightPWM->setMinimum(-1000);
+}
+
 void MainWindow::initManipulatorAxisDisplayData(){
   quint16 value;
   myManipulator->getRegister(0,value);
-  this->ui->progressBarManipulatorAxis0->setMinimum(Manipulator::servoMin[0]);
-  this->ui->progressBarManipulatorAxis0->setMaximum(Manipulator::servoMax[0]);
+  this->ui->progressBarManipulatorAxis0->setMinimum(Manipulator::axisMin[0]);
+  this->ui->progressBarManipulatorAxis0->setMaximum(Manipulator::axisMax[0]);
   this->ui->progressBarManipulatorAxis0->setValue(value);
   this->ui->progressBarManipulatorAxis0->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
-
   myManipulator->getRegister(1,value);
-  this->ui->progressBarManipulatorAxis1->setMinimum(Manipulator::servoMin[1]);
-  this->ui->progressBarManipulatorAxis1->setMaximum(Manipulator::servoMax[1]);
+  this->ui->progressBarManipulatorAxis1->setMinimum(Manipulator::axisMin[1]);
+  this->ui->progressBarManipulatorAxis1->setMaximum(Manipulator::axisMax[1]);
   this->ui->progressBarManipulatorAxis1->setValue(value);
   this->ui->progressBarManipulatorAxis1->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
   myManipulator->getRegister(2,value);
-  this->ui->progressBarManipulatorAxis2->setMinimum(Manipulator::servoMin[2]);
-  this->ui->progressBarManipulatorAxis2->setMaximum(Manipulator::servoMax[2]);
+  this->ui->progressBarManipulatorAxis2->setMinimum(Manipulator::axisMin[2]);
+  this->ui->progressBarManipulatorAxis2->setMaximum(Manipulator::axisMax[2]);
   this->ui->progressBarManipulatorAxis2->setValue(value);
   this->ui->progressBarManipulatorAxis2->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
   myManipulator->getRegister(3,value);
-  this->ui->progressBarManipulatorAxis3->setMinimum(Manipulator::servoMin[3]);
-  this->ui->progressBarManipulatorAxis3->setMaximum(Manipulator::servoMax[3]);
+  this->ui->progressBarManipulatorAxis3->setMinimum(Manipulator::axisMin[3]);
+  this->ui->progressBarManipulatorAxis3->setMaximum(Manipulator::axisMax[3]);
   this->ui->progressBarManipulatorAxis3->setValue(value);
   this->ui->progressBarManipulatorAxis3->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
 
   myManipulator->getRegister(4,value);
-  this->ui->progressBarManipulatorMotorSpeed->setMinimum(0);
-  this->ui->progressBarManipulatorMotorSpeed->setMaximum(1000);
-  this->ui->progressBarManipulatorMotorSpeed->setValue(value);
-  this->ui->progressBarManipulatorMotorSpeed->setStyleSheet("QProgressBar::chunk { background-color: #00ff00}");
+  this->ui->progressBarManipulatorAxis4->setMinimum(Manipulator::axisMin[4]);
+  this->ui->progressBarManipulatorAxis4->setMaximum(Manipulator::axisMax[4]);
+  this->ui->progressBarManipulatorAxis4->setValue(value);
+  this->ui->progressBarManipulatorAxis4->setStyleSheet("QProgressBar::chunk { background-color: #00ff00}");
 
   myManipulator->getRegister(5,value);
-  this->ui->progressBarManipulatorUARTAngle->setMinimum(0);
-  this->ui->progressBarManipulatorUARTAngle->setMaximum(300);
-  this->ui->progressBarManipulatorUARTAngle->setValue(value);
-  this->ui->progressBarManipulatorUARTAngle->setStyleSheet("QProgressBar::chunk { background-color: #00ffff}");
-
+  this->ui->progressBarManipulatorAxis5->setMinimum(Manipulator::axisMin[5]);
+  this->ui->progressBarManipulatorAxis5->setMaximum(Manipulator::axisMax[5]);
+  this->ui->progressBarManipulatorAxis5->setValue(value);
+  this->ui->progressBarManipulatorAxis5->setStyleSheet("QProgressBar::chunk { background-color: #ffff00}");
 }
 void MainWindow::updateRoverDisplayData(){
 
   //Connection stats
   this->ui->lineEditRoverRequestNumber->setText(QString::number(myRover->getRequestNumber()));
   this->ui->lineEditRoverResponseNumber->setText(QString::number(myRover->getGoodResponseNumber()));
+  this->ui->lineEditRoverBadResponseNumber->setText(QString::number(myRover->getRequestNumber()-myRover->getGoodResponseNumber()));
 
   quint16 motorsCurrent = 0;
+
+  //PWM Values:
+  this->ui->progressBarLeftPWM->setValue((qint16)myRover->getLeftPWM());
+  this->ui->progressBarRightPWM->setValue((qint16)myRover->getRightPWM());
   //Motor 16
   {
     quint16 value;
@@ -308,6 +312,7 @@ void MainWindow::updateRoverDisplayData(){
   //Motors
   {
     this->ui->progressBarMotorsCurrent->setValue(motorsCurrent);
+    checkTelemetryValues();
   }
   //GPS
   {
@@ -365,12 +370,14 @@ void MainWindow::updateRoverDisplayData(){
     if(designator == 'W'){
         actualGPSCoordinates.setLongitude((-1)*(longnitudeDegrees+longnitudeMinutes/60+longnitudeSeconds/3600));
     }
+
+
     if(actualGPSCoordinates.longitude()<180 && actualGPSCoordinates.longitude()>-180 &&
        actualGPSCoordinates.latitude()>-90 && actualGPSCoordinates.latitude()<90){
       ui->widgetGPS->addCoordinates(actualGPSCoordinates);
     }
 
-    //USER
+    //Read gps target from user
     bool ok;
       double latitude = ui->lineEditLatitudeDegrees->text().toDouble(&ok);
     if(ok){
@@ -400,33 +407,30 @@ void MainWindow::updateRoverDisplayData(){
     if(ok){
       if(ui->lineEditLongnitudeDesignator->text().data()[0] == 'W')
         longnitude *= (-1);
-    else if(ui->lineEditLongnitudeDesignator->text().data()[0] == 'E')
-      ;
-    else
-      ok = false;
+      else if(ui->lineEditLongnitudeDesignator->text().data()[0] != 'E')
+        ok = false;
+    }
+    QGeoCoordinate userCoordinate;
+    if(ok){
+      qDebug()<<"ITS OK";
+      qDebug()<<"LAT"<<latitude;
+      qDebug()<<"LONG"<<longnitude;
+      userCoordinate.setLatitude(latitude);
+      userCoordinate.setLongitude(longnitude);
+      ui->widgetGPS->setTargetCoordinate(userCoordinate);
+    }
+    ui->widgetGPS->update();
   }
-  QGeoCoordinate userCoordinate;
-  if(ok){
-    qDebug()<<"ITS OK";
-    qDebug()<<"LAT"<<latitude;
-    qDebug()<<"LONG"<<longnitude;
-    userCoordinate.setLatitude(latitude);
-    userCoordinate.setLongitude(longnitude);
-    ui->widgetGPS->setActualCoordinate(userCoordinate);
-  }
-  }
-  checkTelemetryValues();
-  ui->widgetGPS->update();
 }
 void MainWindow::setDisplayStyle(){
   this->setStyleSheet("QProgressBar { border: 1px solid grey; border-radius: 5px; };");
 }
 //Checks if motor driver volages and current arent too big and warn operator
 void MainWindow::checkTelemetryValues(){
-  const int value5V = 5000;
+  const int value5V = 5200;
   const int value12V = 13000;
   const int value24V = 25000;
-  const int valueAccV = 25000;
+  const int valueAccV = 26000;
   const int current = 3000;
   //5V
   {
@@ -598,7 +602,6 @@ void MainWindow::checkTelemetryValues(){
 void MainWindow::setStatusDiodeRover(bool status){
   this->ui->statusDiodeRover->setStatus(status);
 }
-
 //Manipulator
 void MainWindow::setStatusDiodeManipulator(bool status){
   this->ui->statusDiodeManipulator->setStatus(status);

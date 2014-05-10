@@ -41,7 +41,7 @@ public:
   bool readHoldingRegisters(quint16 startingAddress, quint16 quantityOfRegisters);
 
   bool setRegister(int index, quint16 value);
-  bool getRegister(int index, quint16 &value);
+  bool getRegister(int index, quint16 &value) const;
 
   void setResponseTimerTimeout(int ms){ responseTimerTimeout = ms;}
 

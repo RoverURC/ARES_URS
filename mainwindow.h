@@ -55,16 +55,13 @@ private:
   void setDisplayStyle();
   void checkTelemetryValues();
   void initManipulatorAxisDisplayData();
+  void initRoverDisplayData();
   //void updateGPSWidget();
   QGeoCoordinate targetGPSCoordinates;
   QGeoCoordinate actualGPSCoordinates;
 
 public slots:
   void setStatusDiodeRover(bool status);
-
   void setStatusDiodeManipulator(bool status);
 };
-
-
-
 #endif // MAINWINDOW_H

@@ -25,7 +25,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -1809,7 +1809,7 @@
             <property name="geometry">
              <rect>
               <x>200</x>
-              <y>220</y>
+              <y>210</y>
               <width>201</width>
               <height>71</height>
              </rect>
@@ -1822,7 +1822,7 @@
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>284</y>
+              <y>10</y>
               <width>152</width>
               <height>173</height>
              </rect>
@@ -1947,7 +1947,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QProgressBar" name="progressBarManipulatorUARTAngle">
+                  <widget class="QProgressBar" name="progressBarManipulatorAxis4">
                    <property name="value">
                     <number>24</number>
                    </property>
@@ -1960,9 +1960,111 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QProgressBar" name="progressBarManipulatorMotorSpeed">
+                  <widget class="QProgressBar" name="progressBarManipulatorAxis5">
                    <property name="value">
                     <number>24</number>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="format">
+                    <string>%v</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="JoystickView" name="widgetJoypadManipulator" native="true">
+            <property name="geometry">
+             <rect>
+              <x>170</x>
+              <y>10</y>
+              <width>201</width>
+              <height>71</height>
+             </rect>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+           </widget>
+           <widget class="QWidget" name="">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>190</y>
+              <width>182</width>
+              <height>85</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_53">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_65">
+               <property name="text">
+                <string>Rover:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_18">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_52">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_48">
+                   <property name="text">
+                    <string>LeftPWM</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_49">
+                   <property name="text">
+                    <string>RightPWM</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_51">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QProgressBar" name="progressBarLeftPWM">
+                   <property name="maximum">
+                    <number>1000</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="format">
+                    <string>%v</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QProgressBar" name="progressBarRightPWM">
+                   <property name="maximum">
+                    <number>1000</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -3301,6 +3403,52 @@
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <widget class="QLabel" name="label_50">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Ignored">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>6</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Bad</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="lineEditRoverBadResponseNumber">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>15</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>FreeMono</family>
+                      <pointsize>7</pointsize>
+                      <weight>75</weight>
+                      <italic>true</italic>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -3468,6 +3616,52 @@
                   </item>
                   <item>
                    <widget class="QLineEdit" name="lineEditManipulatorResponseNumber">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>15</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>FreeMono</family>
+                      <pointsize>7</pointsize>
+                      <weight>75</weight>
+                      <italic>true</italic>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_51">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>6</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Bad</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="lineEditManipulatorBadResponseNumber">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
