@@ -14,9 +14,7 @@ Rover::Rover(QObject *parent ) :
 }
 void Rover::sendRoverData(){
 
-  setRegister(10, 15);
-  setRegister(11, 16);
-  writeMultipleRegisters(10,2);
+  writeMultipleRegisters(32,2);
 }
 void Rover::readRoverData(){
 
