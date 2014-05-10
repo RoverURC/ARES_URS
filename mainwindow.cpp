@@ -314,64 +314,109 @@ void MainWindow::updateRoverDisplayData(){
     //Time
     quint16 value;
     myRover->getRegister(41,value);
-    qDebug()<<"HOUR"<<value;
     this->ui->labelGpsHour->setText(QString::number(value));
     myRover->getRegister(42,value);
-    qDebug()<<"MINUTE"<<value;
     this->ui->labelGpsMinute->setText(QString::number(value));
     myRover->getRegister(43,value);
-    qDebug()<<"SECOND"<<value;
     this->ui->labelGpsSecond->setText(QString::number(value));
-    //
+
     // Latitude
     myRover->getRegister(46,value);
     double latitudeDegrees = value;
     this->ui->labelLatitudeDegrees->setText(QString::number(latitudeDegrees));
-    actualGPSCoordinates.latitudeDegrees= latitudeDegrees;
 
     myRover->getRegister(47,value);
     double latitudeMinutes = value;
     this->ui->labelLatitudeMinutes->setText(QString::number(latitudeMinutes));
-    actualGPSCoordinates.latitudeMinutes= latitudeMinutes;
 
     myRover->getRegister(48,value);
     double latitudeSeconds = (double)value/10000 * 0.6;
     this->ui->labelLatitudeSeconds->setText(QString::number(latitudeSeconds));
-    actualGPSCoordinates.latitudeSeconds= latitudeSeconds;
 
     myRover->getRegister(49,value);
     QChar designator = QChar(value);
-    QChar latitudeDesignator = designator;
     this->ui->labelLatitudeDesignator->setText(QString(designator));
-    actualGPSCoordinates.latitudeDesignator = value;
+    if(designator==QChar('N')){
+      actualGPSCoordinates.setLatitude(latitudeDegrees+latitudeMinutes/60 +latitudeSeconds/3600);
+    }
+    if(designator == QChar('S')){
+      actualGPSCoordinates.setLatitude((-1)*(latitudeDegrees+latitudeMinutes/60 +latitudeSeconds/3600));
+    }
 
     //Longnitude
     myRover->getRegister(50,value);
     double longnitudeDegrees = value;
     this->ui->labelLongnitudeDegrees->setText(QString::number(longnitudeDegrees));
-    actualGPSCoordinates.longnitudeDegrees = longnitudeDegrees;
 
     myRover->getRegister(51,value);
     double longnitudeMinutes = value;
     this->ui->labelLongnitudeMinutes->setText(QString::number(longnitudeMinutes));
-    actualGPSCoordinates.longnitudeMinutes = longnitudeMinutes;
 
     myRover->getRegister(52,value);
     double longnitudeSeconds = (double)value/10000 * 0.6;;
     this->ui->labelLongnitudeSeconds->setText(QString::number(longnitudeSeconds));
-    actualGPSCoordinates.longnitudeSeconds = longnitudeSeconds;
 
     myRover->getRegister(53,value);
     designator = QChar(value);
-
     this->ui->labelLongnitudeDesignator->setText(designator);
-    actualGPSCoordinates.longnitudeeDesignator = designator;
+    if(designator == 'E'){
+      actualGPSCoordinates.setLongitude(longnitudeDegrees+longnitudeMinutes/60+longnitudeSeconds/3600);
+    }
+    if(designator == 'W'){
+        actualGPSCoordinates.setLongitude((-1)*(longnitudeDegrees+longnitudeMinutes/60+longnitudeSeconds/3600));
+    }
+    if(actualGPSCoordinates.longitude()<180 && actualGPSCoordinates.longitude()>-180 &&
+       actualGPSCoordinates.latitude()>-90 && actualGPSCoordinates.latitude()<90){
+      ui->widgetGPS->addCoordinates(actualGPSCoordinates);
+    }
 
-   //ui->widgetGPS->addPoint(actualGPSCoordinates);
-
+    //USER
+    bool ok;
+      double latitude = ui->lineEditLatitudeDegrees->text().toDouble(&ok);
+    if(ok){
+      latitude += ui->lineEditLatitudeMinutes->text().toDouble(&ok)/60;
+    }
+    if(ok){
+      latitude +=ui->lineEditLatitudeSeconds->text().toDouble(&ok)/3600;
+    }
+    if(ok){
+      if(ui->lineEditLatitudeDesignator->text().data()[0] == 'S')
+        latitude *= (-1);
+      else if((QChar)ui->lineEditLatitudeDesignator->text().data()[0] == 'N')
+        ;
+      else
+        ok = false;
+    }
+    double longnitude;
+    if(ok){
+      longnitude = ui->lineEditLongnitudeDegrees->text().toDouble(&ok);
+    }
+    if(ok){
+      longnitude += ui->lineEditLongnitudeMinutes->text().toDouble(&ok)/60;
+    }
+    if(ok){
+      longnitude +=ui->lineEditLongnitudeSeconds->text().toDouble(&ok)/3600;
+    }
+    if(ok){
+      if(ui->lineEditLongnitudeDesignator->text().data()[0] == 'W')
+        longnitude *= (-1);
+    else if(ui->lineEditLongnitudeDesignator->text().data()[0] == 'E')
+      ;
+    else
+      ok = false;
+  }
+  QGeoCoordinate userCoordinate;
+  if(ok){
+    qDebug()<<"ITS OK";
+    qDebug()<<"LAT"<<latitude;
+    qDebug()<<"LONG"<<longnitude;
+    userCoordinate.setLatitude(latitude);
+    userCoordinate.setLongitude(longnitude);
+    ui->widgetGPS->setActualCoordinate(userCoordinate);
+  }
   }
   checkTelemetryValues();
-  //updateGPSWidget();
+  ui->widgetGPS->update();
 }
 void MainWindow::setDisplayStyle(){
   this->setStyleSheet("QProgressBar { border: 1px solid grey; border-radius: 5px; };");

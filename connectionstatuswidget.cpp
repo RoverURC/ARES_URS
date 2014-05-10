@@ -1,5 +1,5 @@
 #include "connectionstatuswidget.h"
-
+#include <QGeoCoordinate>
 ConnectionStatusWidget::ConnectionStatusWidget(QWidget *parent) :
   QWidget(parent)
 {

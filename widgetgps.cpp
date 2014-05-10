@@ -4,29 +4,39 @@
 WidgetGPS::WidgetGPS(QWidget *parent) :
   QGraphicsView(parent)
 {
+  pointList.clear();
   myScene = new QGraphicsScene(this);
   this->setScene(myScene);
-  addPoint(GPSCoordinates(50,2,27.78,'N',21,59,56.76,'E'));
-  addPoint(GPSCoordinates(50,2,28.78,'N',21,59,56.90,'E'));
-
+  this->addCoordinates(QGeoCoordinate(0,0));
+  actualCoordinate.setLatitude(0);
+  actualCoordinate.setLongitude(0);
 }
 void WidgetGPS::reset(){
   pointList.clear();
   update();
 }
-
-void WidgetGPS::addPoint(GPSCoordinates coordinate){
+void WidgetGPS::addCoordinates(QGeoCoordinate coordinate){
   pointList.append(coordinate);
   this->update();
 }
 
 void WidgetGPS::paintEvent(QPaintEvent *event){
-  myScene->clear();
+  myScene->deleteLater();
+  myScene = new QGraphicsScene();
 
   for (int i=0 ; i<pointList.size(); i++){
-      QPoint point = calculateXY(pointList[i]);
-      myScene->addEllipse(point.x(),point.y(),1,1,QPen(Qt::black),QBrush(Qt::black));
-    }
+    MyPoint point = calculateXY(pointList[i]);
+    myScene->addEllipse(point.x,point.y,0.3,0.3,QPen(Qt::transparent),QBrush(Qt::black));
+    qDebug()<<"PX"<<point.x;
+    qDebug()<<"PY"<<point.y;
+  }
+  MyPoint point = calculateXY(actualCoordinate);
+  myScene->addEllipse(point.x,point.y, 0.3, 0.3,QPen(Qt::transparent),QBrush(Qt::red));
+  qDebug()<<"AX"<<point.x;
+  qDebug()<<"AY"<<point.y;
+
+  setScene(myScene);
+  QGraphicsView::fitInView(scene()->sceneRect(), Qt::KeepAspectRatio );
   QGraphicsView::paintEvent(event);
 }
 
@@ -34,14 +44,17 @@ void WidgetGPS::resizeEvent(QResizeEvent *){
 
 }
 
-void WidgetGPS::setActualCoordinate(GPSCoordinates coordinate){
+void WidgetGPS::setActualCoordinate(QGeoCoordinate coordinate){
   actualCoordinate = coordinate;
 }
-QPoint WidgetGPS::calculateXY(GPSCoordinates coordinates){
-  double x = coordinates.latitudeDegrees+coordinates.latitudeMinutes/60+coordinates.latitudeSeconds/3600;
-  double y = coordinates.longnitudeDegrees+coordinates.longnitudeDegrees/60+coordinates.latitudeSeconds/3600;
+MyPoint WidgetGPS::calculateXY(QGeoCoordinate coordinates){
+  MyPoint point(0,0);
+  point.x = coordinates.longitude()*10000;
+  point.y = coordinates.latitude()*10000;
+  return point;
+}
 
-  x=x*10;
-  y=y*10;
-  return QPoint(x,y);
+MyPoint::MyPoint(double x, double y){
+      this->x = x;
+      this->y = y;
 }

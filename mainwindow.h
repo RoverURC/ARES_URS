@@ -10,8 +10,7 @@
 #include "qjoystick.h"
 #include "rover.h"
 #include "manipulator.h"
-#include <gpscoordinates.h>
-
+#include <QGeoCoordinate>
 namespace Ui {
   class MainWindow;
 }
@@ -57,8 +56,8 @@ private:
   void checkTelemetryValues();
   void initManipulatorAxisDisplayData();
   //void updateGPSWidget();
-  GPSCoordinates targetGPSCoordinates;
-  GPSCoordinates actualGPSCoordinates;
+  QGeoCoordinate targetGPSCoordinates;
+  QGeoCoordinate actualGPSCoordinates;
 
 public slots:
   void setStatusDiodeRover(bool status);

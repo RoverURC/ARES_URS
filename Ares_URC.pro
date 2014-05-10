@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network  opengl
+QT       += core gui network  opengl positioning
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -21,7 +21,6 @@ SOURCES += main.cpp\
     rover.cpp \
     manipulator.cpp \
     widgetgps.cpp \
-    gpscoordinates.cpp
 
 HEADERS  += mainwindow.h \
     modbusclient.h \
@@ -34,7 +33,6 @@ HEADERS  += mainwindow.h \
     manipulator.h \
     motorcodes.h \
     widgetgps.h \
-    gpscoordinates.h
 
 FORMS    += mainwindow.ui
 

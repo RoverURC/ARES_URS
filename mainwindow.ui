@@ -25,7 +25,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -1747,7 +1747,7 @@
               <x>330</x>
               <y>310</y>
               <width>141</width>
-              <height>41</height>
+              <height>42</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -1823,8 +1823,8 @@
              <rect>
               <x>10</x>
               <y>284</y>
-              <width>144</width>
-              <height>159</height>
+              <width>152</width>
+              <height>173</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -2547,7 +2547,7 @@
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit">
+                     <widget class="QLineEdit" name="lineEditLatitudeDegrees">
                       <property name="text">
                        <string>D</string>
                       </property>
@@ -2570,7 +2570,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_2">
+                     <widget class="QLineEdit" name="lineEditLatitudeMinutes">
                       <property name="text">
                        <string>M</string>
                       </property>
@@ -2593,7 +2593,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_3">
+                     <widget class="QLineEdit" name="lineEditLatitudeSeconds">
                       <property name="text">
                        <string>S</string>
                       </property>
@@ -2616,7 +2616,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_4">
+                     <widget class="QLineEdit" name="lineEditLatitudeDesignator">
                       <property name="text">
                        <string>N</string>
                       </property>
@@ -2630,7 +2630,7 @@
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_5">
+                     <widget class="QLineEdit" name="lineEditLongnitudeDegrees">
                       <property name="text">
                        <string>D</string>
                       </property>
@@ -2653,7 +2653,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_6">
+                     <widget class="QLineEdit" name="lineEditLongnitudeMinutes">
                       <property name="text">
                        <string>M</string>
                       </property>
@@ -2676,7 +2676,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_7">
+                     <widget class="QLineEdit" name="lineEditLongnitudeSeconds">
                       <property name="text">
                        <string>S</string>
                       </property>
@@ -2699,7 +2699,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_8">
+                     <widget class="QLineEdit" name="lineEditLongnitudeDesignator">
                       <property name="text">
                        <string>E</string>
                       </property>
@@ -2725,7 +2725,7 @@
               <x>50</x>
               <y>190</y>
               <width>227</width>
-              <height>129</height>
+              <height>143</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_36">
@@ -2862,7 +2862,7 @@
               <x>50</x>
               <y>50</y>
               <width>227</width>
-              <height>129</height>
+              <height>143</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -2986,7 +2986,7 @@
               <x>300</x>
               <y>70</y>
               <width>371</width>
-              <height>56</height>
+              <height>64</height>
              </rect>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_35">
@@ -3517,7 +3517,7 @@
      <x>0</x>
      <y>0</y>
      <width>870</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
